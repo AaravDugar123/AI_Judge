@@ -36,32 +36,20 @@ def health():
         return {"ok": False, "service": "ai-judge-backend", "database": "error", "error": str(e)}, 500
 
 
-def register_blueprints():
-    """Register all blueprints with the Flask app."""
-    try:
-        app.register_blueprint(submissions_bp)
-        app.register_blueprint(judges_bp)
-        app.register_blueprint(assignments_bp)
-        app.register_blueprint(evaluations_bp)
-        print("All blueprints registered successfully")
-    except Exception as e:
-        print(f"Error registering blueprints: {e}")
-        raise
+def initialize_app():
+    """Initialize application: register blueprints and create tables."""
+    # Register all blueprints
+    app.register_blueprint(submissions_bp)
+    app.register_blueprint(judges_bp)
+    app.register_blueprint(assignments_bp)
+    app.register_blueprint(evaluations_bp)
 
-
-def create_tables():
-    """Create database tables if they don't exist."""
-    try:
-        with app.app_context():
-            db.create_all()
-            print("Database tables created successfully")
-    except Exception as e:
-        print(f"Error creating database tables: {e}")
-        raise
+    # Create database tables
+    with app.app_context():
+        db.create_all()
 
 
 if __name__ == "__main__":
-    register_blueprints()
-    create_tables()
+    initialize_app()
     port = int(os.getenv("PORT", 5000))
     app.run(port=port, debug=DEBUG_MODE)
