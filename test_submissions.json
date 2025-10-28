@@ -1,0 +1,69 @@
+[
+  {
+    "id": "sub_1",
+    "queueId": "queue_1",
+    "labelingTaskId": "task_1",
+    "createdAt": 1690000000000,
+    "questions": [
+      {
+        "rev": 1,
+        "data": {
+          "id": "q_template_1",
+          "questionType": "single_choice_with_reasoning",
+          "questionText": "Is the sky blue?"
+        }
+      }
+    ],
+    "answers": {
+      "q_template_1": {
+        "choice": "yes",
+        "reasoning": "Observed on a clear day."
+      }
+    }
+  },
+  {
+    "id": "sub_2",
+    "queueId": "queue_1",
+    "labelingTaskId": "task_1",
+    "createdAt": 1690000100000,
+    "questions": [
+      {
+        "rev": 1,
+        "data": {
+          "id": "q_template_2",
+          "questionType": "single_choice_with_reasoning",
+          "questionText": "What is 2 + 2?"
+        }
+      }
+    ],
+    "answers": {
+      "q_template_2": {
+        "choice": "4",
+        "reasoning": "Basic arithmetic addition."
+      }
+    }
+  },
+  {
+    "id": "sub_3",
+    "queueId": "queue_2",
+    "labelingTaskId": "task_2",
+    "createdAt": 1690000200000,
+    "questions": [
+      {
+        "rev": 1,
+        "data": {
+          "id": "q_template_3",
+          "questionType": "free_form",
+          "questionText": "Explain the water cycle."
+        }
+      }
+    ],
+    "answers": {
+      "q_template_3": {
+        "choice": "The water cycle involves evaporation, condensation, precipitation, and collection.",
+        "reasoning": "Detailed explanation of natural water movement."
+      }
+    }
+  }
+]
+
