@@ -1,1 +1,42 @@
-(eval):1: command not found: python
+All blueprints registered successfully
+Database tables created successfully
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5002
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [28/Oct/2025 16:38:59] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:05] "DELETE /evaluations/clear HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:10] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:26] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:26] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:26] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:43] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:43] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:43] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:43] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:43] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:43] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:46] "GET /submissions HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:46] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:46] "GET /assignments HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:46] "GET /submissions HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:46] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:46] "GET /assignments HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:50] "OPTIONS /evaluations/run HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:53] "POST /evaluations/run HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:56] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:56] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:56] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:56] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:56] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:39:56] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:40:00] "OPTIONS /evaluations/clear HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:40:00] "DELETE /evaluations/clear HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:40:00] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:40:02] "GET /submissions HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:40:02] "GET /assignments HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:40:02] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:40:02] "GET /assignments HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:40:02] "GET /submissions HTTP/1.1" 200 -
+127.0.0.1 - - [28/Oct/2025 16:40:02] "GET /judges HTTP/1.1" 200 -

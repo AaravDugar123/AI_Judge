@@ -8,19 +8,17 @@ import openai
 load_dotenv()
 # Set up OpenAI client
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-5")
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
 
 # Valid OpenAI model names (exposed via API)
+# Note: Only include models that actually exist in OpenAI's API
 VALID_OPENAI_MODELS = {
-    "gpt-5",
-    "gpt-5-turbo",
-    "gpt-5-preview",
     "gpt-4o-mini",
     "gpt-4o",
-    "gpt-4",
-    "gpt-4-turbo",
     "gpt-4-turbo-preview",
-    "gpt-4-1106-preview"
+    "gpt-4-turbo",
+    "gpt-4",
+    "gpt-3.5-turbo"
 }
 
 

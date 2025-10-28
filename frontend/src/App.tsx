@@ -12,7 +12,7 @@ function Navigation() {
   const navItems = [
     { path: '/', label: 'Upload', icon: UploadIcon },
     { path: '/judges', label: 'Judges', icon: Bot },
-    { path: '/queue', label: 'Queue', icon: Users },
+    { path: '/queue', label: 'Assignments', icon: Users },
     { path: '/results', label: 'Results', icon: TrendingUp },
   ];
 

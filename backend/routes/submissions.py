@@ -44,3 +44,17 @@ def list_submissions():
             "taskId": s.task_id, "createdAt": s.created_at}
         for s in subs
     ])
+
+
+@bp.delete("/clear")
+def clear_all_submissions():
+    """Delete all submissions (cascades to questions and answers)"""
+    try:
+        count = Submission.query.count()
+        Submission.query.delete()
+        db.session.commit()
+        return {"status": "ok", "deleted": count}
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR clearing submissions: {e}")
+        return {"error": str(e)}, 500

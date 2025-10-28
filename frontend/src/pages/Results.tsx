@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Filter, Download, RefreshCw } from 'lucide-react';
+import { TrendingUp, Filter, Download, RefreshCw, Trash2 } from 'lucide-react';
 import { useApi } from '../hooks/useApi';
+import { api } from '../services/api';
+import toast from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import type { EvaluationResponse, Judge, EvaluationFilters } from '../types';
 
 export default function Results() {
   const [filters, setFilters] = useState<EvaluationFilters>({});
+  const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [clearing, setClearing] = useState(false);
   
   // Build query string from filters
   const queryParams = new URLSearchParams();
@@ -22,6 +26,11 @@ export default function Results() {
   );
   
   const { data: judges } = useApi<Judge[]>('/judges');
+  
+  // Auto-refresh on mount to catch new evaluations
+  React.useEffect(() => {
+    refetch();
+  }, []);
 
   const handleFilterChange = (key: keyof EvaluationFilters, value: string) => {
     setFilters(prev => ({
@@ -32,6 +41,23 @@ export default function Results() {
 
   const clearFilters = () => {
     setFilters({});
+  };
+
+  const handleClearAll = async () => {
+    if (!window.confirm('⚠️ WARNING: This will delete ALL evaluation results. This action cannot be undone!\n\nAre you sure?')) {
+      return;
+    }
+    
+    setClearing(true);
+    try {
+      await api.delete('/evaluations/clear');
+      toast.success('All evaluations cleared successfully!');
+      refetch(); // Refresh the data
+    } catch (error: any) {
+      toast.error('Failed to clear evaluations');
+    } finally {
+      setClearing(false);
+    }
   };
 
   // Prepare chart data
@@ -50,7 +76,7 @@ export default function Results() {
   }, [evaluations?.items]);
 
   const judgePerformanceData = React.useMemo(() => {
-    if (!evaluations?.items || !judges) return [];
+    if (!evaluations?.items || !judges || judges.length === 0) return [];
     
     const judgeStats = judges.map(judge => {
       const judgeEvals = evaluations.items.filter(e => e.judgeId === judge.id);
@@ -58,7 +84,7 @@ export default function Results() {
       const total = judgeEvals.length;
       
       return {
-        name: judge.name,
+        name: judge.name || `Judge ${judge.id}`,
         passRate: total > 0 ? Math.round((passCount / total) * 100) : 0,
         total,
         passed: passCount
@@ -118,6 +144,14 @@ export default function Results() {
           <button onClick={refetch} className="btn-primary flex items-center">
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
+          </button>
+          <button
+            onClick={handleClearAll}
+            disabled={clearing || !evaluations?.items?.length}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            {clearing ? 'Clearing...' : 'Clear All'}
           </button>
         </div>
       </div>
@@ -221,9 +255,15 @@ export default function Results() {
               onChange={e => handleFilterChange('judgeId', e.target.value)}
             >
               <option value="">All judges</option>
-              {judges?.map(judge => (
-                <option key={judge.id} value={judge.id.toString()}>{judge.name}</option>
-              ))}
+              {judges && judges.length > 0 ? (
+                judges.map(judge => (
+                  <option key={judge.id} value={judge.id.toString()}>
+                    {judge.name || `Judge ${judge.id}`}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No judges available</option>
+              )}
             </select>
           </div>
           <div>
@@ -288,10 +328,12 @@ export default function Results() {
                         {judge ? (
                           <div>
                             <div className="font-medium">{judge.name}</div>
-                            <div className="text-xs text-gray-500">{judge.modelName}</div>
+                            <div className="text-xs text-gray-500">{judge.modelName || 'No model'}</div>
                           </div>
                         ) : (
-                          `Judge ${evaluation.judgeId}`
+                          <div className="text-gray-500 italic">
+                            Judge ID: {evaluation.judgeId} (deleted)
+                          </div>
                         )}
                       </td>
                       <td className="py-3 px-2">
@@ -303,8 +345,20 @@ export default function Results() {
                           {evaluation.verdict}
                         </span>
                       </td>
-                      <td className="py-3 px-2 text-sm max-w-xs truncate" title={evaluation.reasoning}>
-                        {evaluation.reasoning}
+                      <td className="py-3 px-2 text-sm">
+                        <div className={expandedRow === evaluation.id ? '' : 'max-w-md'}>
+                          <p className={expandedRow === evaluation.id ? 'whitespace-pre-wrap' : 'truncate'}>
+                            {evaluation.reasoning}
+                          </p>
+                          {evaluation.reasoning.length > 100 && (
+                            <button
+                              onClick={() => setExpandedRow(expandedRow === evaluation.id ? null : evaluation.id)}
+                              className="text-primary-600 hover:text-primary-700 text-xs mt-1"
+                            >
+                              {expandedRow === evaluation.id ? 'Show less' : 'Show more'}
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-2 text-sm text-gray-500">
                         {new Date(evaluation.createdAt).toLocaleString()}

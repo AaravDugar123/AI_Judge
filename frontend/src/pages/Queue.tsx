@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Users, FileText, ArrowRight, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { Play, Users, FileText, ArrowRight, CheckCircle2, AlertCircle, Clock, Trash2 } from 'lucide-react';
 import { useApi, useMutation } from '../hooks/useApi';
 import { api, withLoading } from '../services/api';
 import toast from 'react-hot-toast';
@@ -14,6 +14,7 @@ export default function Queue() {
 
   const [runningEvaluation, setRunningEvaluation] = useState(false);
   const [evaluationResults, setEvaluationResults] = useState<EvaluationRunResponse | null>(null);
+  const [clearingAssignments, setClearingAssignments] = useState(false);
 
   const assignmentMutation = useMutation<{ ok: boolean; id: number }, {
     submissionId: string;
@@ -61,12 +62,31 @@ export default function Queue() {
     }
   };
 
+  const handleClearAssignments = async () => {
+    if (!window.confirm('⚠️ WARNING: This will delete ALL assignments. Evaluations will remain, but you\'ll need to reassign judges.\n\nAre you sure?')) {
+      return;
+    }
+    
+    setClearingAssignments(true);
+    try {
+      await api.delete('/assignments/clear');
+      toast.success('All assignments cleared successfully!');
+      refetchAssignments();
+    } catch (error: any) {
+      toast.error('Failed to clear assignments');
+    } finally {
+      setClearingAssignments(false);
+    }
+  };
+
   const getAssignmentsForSubmission = (submissionId: string) => {
     return assignments?.filter(a => a.submissionId === submissionId) || [];
   };
 
   const getJudgeName = (judgeId: number) => {
-    return judges?.find(j => j.id === judgeId)?.name || `Judge ${judgeId}`;
+    const judge = judges?.find(j => j.id === judgeId);
+    if (!judge) return `Judge ${judgeId} (deleted)`;
+    return judge.name;
   };
 
   const activeJudges = judges?.filter(j => j.active) || [];
@@ -94,37 +114,55 @@ export default function Queue() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center">
             <Users className="w-8 h-8 mr-3 text-primary-600" />
-            Queue & Assignments
+            Assignments
           </h1>
           <p className="text-gray-600 mt-1">
-            Assign AI judges to evaluate submissions and run batch evaluations
+            Assign AI judges to evaluate submissions
           </p>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => handleRunEvaluations()}
             disabled={runningEvaluation || totalAssignments === 0}
-            className="btn-success flex items-center"
+            className="btn-success flex items-center justify-center px-6 py-3 text-base font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
           >
             {runningEvaluation ? (
-              <Clock className="w-4 h-4 mr-2 animate-spin" />
+              <>
+                <Clock className="w-5 h-5 mr-2 animate-spin" />
+                Running Evaluations...
+              </>
             ) : (
-              <Play className="w-4 h-4 mr-2" />
+              <>
+                <Play className="w-5 h-5 mr-2" />
+                Run All Evaluations
+              </>
             )}
-            Run All Evaluations
           </button>
-          {uniqueQueues.length > 0 && (
-            <select
-              onChange={(e) => e.target.value && handleRunEvaluations(e.target.value)}
-              className="input bg-primary-600 text-white border-primary-600"
-              disabled={runningEvaluation}
-            >
-              <option value="">Run by Queue...</option>
-              {uniqueQueues.map(queueId => (
-                <option key={queueId} value={queueId}>Queue: {queueId}</option>
-              ))}
-            </select>
+          {uniqueQueues.length > 1 && (
+            <div className="relative">
+              <select
+                onChange={(e) => e.target.value && handleRunEvaluations(e.target.value)}
+                className="btn-primary flex items-center px-6 py-3 text-base font-semibold cursor-pointer appearance-none pr-10 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                disabled={runningEvaluation}
+              >
+                <option value="">🎯 Run by Specific Queue...</option>
+                {uniqueQueues.map(queueId => (
+                  <option key={queueId} value={queueId}>Queue: {queueId}</option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-white">
+                ▼
+              </div>
+            </div>
           )}
+          <button
+            onClick={handleClearAssignments}
+            disabled={clearingAssignments || totalAssignments === 0}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            {clearingAssignments ? 'Clearing...' : 'Clear Assignments'}
+          </button>
         </div>
       </div>
 
@@ -189,13 +227,16 @@ export default function Queue() {
               <p className="text-sm text-error-600">Failed</p>
             </div>
           </div>
-          <div className="mt-4">
+          <div className="mt-4 space-y-2">
             <button
               onClick={() => window.location.href = '/results'}
-              className="btn-primary"
+              className="btn-primary w-full"
             >
-              View Detailed Results
+              View Detailed Results & Reasoning
             </button>
+            <p className="text-sm text-gray-600 text-center">
+              Click above to see full evaluation reasoning and verdicts
+            </p>
           </div>
         </div>
       )}
@@ -343,19 +384,23 @@ function SubmissionCard({
               onChange={e => setSelectedJudgeId(Number(e.target.value))}
             >
               <option value={0}>Choose a judge...</option>
-              {judges.map(judge => (
-                <option key={judge.id} value={judge.id}>
-                  {judge.name} ({judge.modelName})
-                </option>
-              ))}
+              {judges && judges.length > 0 ? (
+                judges.map(judge => (
+                  <option key={judge.id} value={judge.id}>
+                    {judge.name} ({judge.modelName || 'No model'})
+                  </option>
+                ))
+              ) : (
+                <option disabled>No judges available</option>
+              )}
             </select>
           </div>
           <button
             onClick={handleAssign}
-            disabled={!selectedJudgeId || !questionId.trim() || isAssigning}
+            disabled={!selectedJudgeId || !questionId.trim() || isAssigning || judges.length === 0}
             className="btn-primary text-sm"
           >
-            Assign
+            {isAssigning ? 'Assigning...' : 'Assign'}
           </button>
         </div>
         <p className="text-xs text-gray-500 mt-2">

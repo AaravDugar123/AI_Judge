@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload as UploadIcon, FileText, CheckCircle2, AlertCircle, Download } from 'lucide-react';
+import { Upload as UploadIcon, FileText, CheckCircle2, AlertCircle, Download, Trash2 } from 'lucide-react';
 import { api, withLoading } from '../services/api';
 import toast from 'react-hot-toast';
 import type { UploadSubmissionData, ApiStatus } from '../types';
@@ -9,6 +9,7 @@ export default function Upload() {
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadedCount, setUploadedCount] = useState(0);
   const [serverStatus, setServerStatus] = useState<ApiStatus | null>(null);
+  const [clearing, setClearing] = useState(false);
 
   // Check server status on component mount
   React.useEffect(() => {
@@ -104,6 +105,24 @@ export default function Upload() {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!window.confirm('⚠️ WARNING: This will delete ALL submissions, questions, and answers. This action cannot be undone!\n\nAre you sure?')) {
+      return;
+    }
+    
+    setClearing(true);
+    try {
+      await api.delete('/submissions/clear');
+      toast.success('All submissions cleared successfully!');
+      setUploadStatus('idle');
+      setUploadedCount(0);
+    } catch (error: any) {
+      toast.error('Failed to clear submissions');
+    } finally {
+      setClearing(false);
+    }
+  };
+
   const generateSampleData = () => {
     const sampleData: UploadSubmissionData[] = [
       {
@@ -159,13 +178,23 @@ export default function Upload() {
           <h1 className="text-3xl font-bold text-gray-900">Upload Submissions</h1>
           <p className="text-gray-600 mt-1">Import JSON files containing submissions for AI evaluation</p>
         </div>
-        <button
-          onClick={generateSampleData}
-          className="btn-secondary flex items-center"
-        >
-          <Download className="w-4 h-4 mr-2" />
-          Download Sample
-        </button>
+        <div className="flex space-x-3">
+          <button
+            onClick={generateSampleData}
+            className="btn-secondary flex items-center"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Download Sample
+          </button>
+          <button
+            onClick={handleClearAll}
+            disabled={clearing}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            {clearing ? 'Clearing...' : 'Clear All Submissions'}
+          </button>
+        </div>
       </div>
 
       {/* Server Status */}

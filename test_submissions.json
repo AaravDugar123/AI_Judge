@@ -23,7 +23,7 @@
   },
   {
     "id": "sub_2",
-    "queueId": "queue_1",
+    "queueId": "queue_2",
     "labelingTaskId": "task_1",
     "createdAt": 1690000100000,
     "questions": [

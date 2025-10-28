@@ -84,7 +84,7 @@ DATABASE_URL=sqlite:///ai_judge.db
 
 # OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key
-MODEL_NAME=gpt-5
+MODEL_NAME=gpt-4o-mini
 ```
 
 ### Frontend
@@ -104,7 +104,7 @@ The frontend automatically connects to `localhost:5002`. Update `src/services/ap
 
 - Go to Judges page
 - Create judges with custom evaluation prompts
-- Choose from available OpenAI models (GPT-5, GPT-5-Turbo, GPT-4, GPT-4o, etc.)
+- Choose from available OpenAI models (GPT-4o-mini, GPT-4o, GPT-4-Turbo, etc.)
 - Activate/deactivate judges as needed
 
 ### 3. Assign Judges

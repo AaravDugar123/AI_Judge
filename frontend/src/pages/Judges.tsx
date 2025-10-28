@@ -15,7 +15,7 @@ export default function Judges() {
   const [form, setForm] = useState<CreateJudgeForm>({
     name: '',
     prompt: '',
-    modelName: 'gpt-5',
+    modelName: 'gpt-4o-mini',
     active: true
   });
 
@@ -39,7 +39,7 @@ export default function Judges() {
     setForm({
       name: '',
       prompt: '',
-      modelName: 'gpt-5',
+      modelName: 'gpt-4o-mini',
       active: true
     });
     setIsCreating(false);
@@ -130,13 +130,12 @@ export default function Judges() {
 
   // Only OpenAI models are supported (configured with OPENAI_API_KEY)
   const commonModelNames = [
-    'gpt-5',
-    'gpt-5-turbo',
-    'gpt-5-preview',
     'gpt-4o-mini',
     'gpt-4o',
+    'gpt-4-turbo-preview',
+    'gpt-4-turbo',
     'gpt-4',
-    'gpt-4-turbo'
+    'gpt-3.5-turbo'
   ];
 
   const samplePrompts = [
