@@ -51,5 +51,5 @@ def initialize_app():
 
 if __name__ == "__main__":
     initialize_app()
-    port = int(os.getenv("PORT", 5000))
+    port = int(os.getenv("PORT", 5000))  # Default: 5000
     app.run(port=port, debug=DEBUG_MODE)
