@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 // Create API client with proper configuration
 export const api = axios.create({ 
-  baseURL: "http://localhost:5000", // Backend runs on port 5000
+  baseURL: "http://localhost:5002", // Backend runs on port 5002
   timeout: 30000, // 30 second timeout for LLM operations
   headers: {
     'Content-Type': 'application/json',

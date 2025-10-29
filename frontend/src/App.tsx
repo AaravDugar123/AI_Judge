@@ -57,9 +57,9 @@ function Navigation() {
               <Github className="w-4 h-4 mr-1" />
               <ExternalLink className="w-3 h-3" />
             </a>
-          <div className="text-sm text-gray-500">
-            Backend: localhost:5000
-          </div>
+            <div className="text-sm text-gray-500">
+              Backend: localhost:5002
+            </div>
           </div>
         </div>
       </div>

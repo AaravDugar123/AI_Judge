@@ -42,7 +42,7 @@ A sophisticated web application that uses AI to automatically evaluate and grade
 
 ## 🏁 Quick Start
 
-### 1. Backend Setup
+### 1. Backend Setup (One-time)
 
 ```bash
 cd backend
@@ -54,22 +54,31 @@ pip install -r requirements.txt
 echo "DEBUG=true" > .env
 echo "PORT=5002" >> .env
 echo "OPENAI_API_KEY=your_api_key_here" >> .env
-
-# Start backend server
-PORT=5002 python app.py
 ```
 
-### 2. Frontend Setup
+### 2. Install Frontend Dependencies (One-time)
 
 ```bash
 cd frontend
 npm install
+```
+
+### 3. Run Everything with One Command! 🎉
+
+```bash
+cd frontend
 npm run dev
 ```
 
-### 3. Access Application
+This will automatically:
 
-- **Frontend**: http://localhost:5173
+- ✅ Start the backend server on port 5002
+- ✅ Start the frontend on port 5173
+- ✅ Open http://localhost:5173 in your browser
+
+### 4. Access Application
+
+- **Frontend**: http://localhost:5173 ← Your app opens here!
 - **Backend API**: http://localhost:5002
 
 ## 📋 Environment Configuration
