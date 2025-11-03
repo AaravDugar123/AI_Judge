@@ -147,3 +147,13 @@
 127.0.0.1 - - [29/Oct/2025 18:49:07] "GET /evaluations HTTP/1.1" 200 -
 127.0.0.1 - - [29/Oct/2025 18:49:37] "GET /evaluations?judgeId=2 HTTP/1.1" 200 -
 127.0.0.1 - - [29/Oct/2025 18:49:43] "GET /evaluations?judgeId=1 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:24] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:24] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:33] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:33] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:56] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:56] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:56] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:56] "GET /judges HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:56] "GET /evaluations HTTP/1.1" 200 -
+127.0.0.1 - - [29/Oct/2025 19:50:56] "GET /evaluations HTTP/1.1" 200 -
