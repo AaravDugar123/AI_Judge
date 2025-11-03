@@ -29,7 +29,7 @@ A sophisticated web application that uses AI to automatically evaluate and grade
 - **Charts**: Recharts for data visualization
 - **Icons**: Lucide React
 
-## 🏁 Quick Start
+##  Quick Start
 
 ### 1. Backend Setup (One-time)
 
@@ -61,9 +61,9 @@ npm run dev
 
 This will automatically:
 
-- ✅ Start the backend server on port 5002
-- ✅ Start the frontend on port 5173
-- ✅ Open http://localhost:5173 in your browser
+- Start the backend server on port 5002
+- Start the frontend on port 5173
+- Open http://localhost:5173 in your browser
 
 ### 4. Access Application
 
