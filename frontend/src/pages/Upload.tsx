@@ -1,29 +1,22 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Upload as UploadIcon, FileText, CheckCircle2, AlertCircle, Download, Trash2 } from 'lucide-react';
 import { api, withLoading } from '../services/api';
 import toast from 'react-hot-toast';
 import type { UploadSubmissionData, ApiStatus } from '../types';
 
 export default function Upload() {
+  const navigate = useNavigate();
   const [dragActive, setDragActive] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadedCount, setUploadedCount] = useState(0);
   const [serverStatus, setServerStatus] = useState<ApiStatus | null>(null);
   const [clearing, setClearing] = useState(false);
 
-  // Check server status on component mount
   React.useEffect(() => {
-    checkServerStatus();
+    api.get<ApiStatus>('/').then(res => setServerStatus(res.data))
+      .catch(() => setServerStatus({ ok: false, service: 'ai-judge-backend', error: 'Not reachable' }));
   }, []);
-
-  const checkServerStatus = async () => {
-    try {
-      const response = await api.get<ApiStatus>('/');
-      setServerStatus(response.data);
-    } catch (error) {
-      setServerStatus({ ok: false, service: 'ai-judge-backend', error: 'Server not reachable' });
-    }
-  };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -59,32 +52,16 @@ export default function Upload() {
 
     try {
       setUploadStatus('uploading');
-      
       const text = await file.text();
-      let jsonData: UploadSubmissionData | UploadSubmissionData[];
-      
-      try {
-        jsonData = JSON.parse(text);
-      } catch (parseError: any) {
-        toast.error(`Invalid JSON format: ${parseError.message}. Make sure your file starts with [ and ends with ]`);
-        setUploadStatus('error');
-        return;
-      }
-
-      // Ensure we have an array
+      const jsonData = JSON.parse(text);
       const submissions = Array.isArray(jsonData) ? jsonData : [jsonData];
       
-      // Validate the structure
       const isValid = submissions.every(sub => 
-        sub.id && 
-        sub.questions && 
-        Array.isArray(sub.questions) &&
-        sub.answers && 
-        typeof sub.answers === 'object'
+        sub.id && sub.questions && Array.isArray(sub.questions) && sub.answers
       );
 
       if (!isValid) {
-        toast.error('Invalid submission format. Expected submissions with id, questions, and answers.');
+        toast.error('Invalid submission format');
         setUploadStatus('error');
         return;
       }
@@ -96,28 +73,22 @@ export default function Upload() {
 
       setUploadedCount(result.data.imported);
       setUploadStatus('success');
-      toast.success(`Successfully imported ${result.data.imported} submissions!`);
-      
-    } catch (error: any) {
-      console.error('Upload error:', error);
+    } catch (error) {
       setUploadStatus('error');
-      toast.error('Upload failed. Please check the file format and try again.');
     }
   };
 
   const handleClearAll = async () => {
-    if (!window.confirm('⚠️ WARNING: This will delete ALL submissions, questions, and answers. This action cannot be undone!\n\nAre you sure?')) {
-      return;
-    }
+    if (!window.confirm('⚠️ This will delete ALL submissions. Continue?')) return;
     
     setClearing(true);
     try {
       await api.delete('/submissions/clear');
-      toast.success('All submissions cleared successfully!');
+      toast.success('Cleared successfully');
       setUploadStatus('idle');
       setUploadedCount(0);
-    } catch (error: any) {
-      toast.error('Failed to clear submissions');
+    } catch {
+      toast.error('Failed to clear');
     } finally {
       setClearing(false);
     }
@@ -197,34 +168,25 @@ export default function Upload() {
         </div>
       </div>
 
-      {/* Server Status */}
       {serverStatus && (
         <div className={`card ${serverStatus.ok ? 'border-success-200 bg-success-50' : 'border-error-200 bg-error-50'}`}>
-          <div className="flex items-center">
-            {serverStatus.ok ? (
-              <CheckCircle2 className="w-5 h-5 text-success-600 mr-3" />
-            ) : (
-              <AlertCircle className="w-5 h-5 text-error-600 mr-3" />
-            )}
-            <div>
-              <p className={`font-medium ${serverStatus.ok ? 'text-success-800' : 'text-error-800'}`}>
-                {serverStatus.ok ? 'Backend Connected' : 'Backend Disconnected'}
-              </p>
-              <p className={`text-sm ${serverStatus.ok ? 'text-success-600' : 'text-error-600'}`}>
-                Service: {serverStatus.service}
-                {serverStatus.database && ` • Database: ${serverStatus.database}`}
-                {serverStatus.error && ` • Error: ${serverStatus.error}`}
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              {serverStatus.ok ? (
+                <CheckCircle2 className="w-5 h-5 text-success-600 mr-3" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-error-600 mr-3" />
+              )}
+              <div>
+                <p className={`font-medium ${serverStatus.ok ? 'text-success-800' : 'text-error-800'}`}>
+                  {serverStatus.ok ? 'Backend Connected' : 'Backend Disconnected'}
+                </p>
+                <p className={`text-sm ${serverStatus.ok ? 'text-success-600' : 'text-error-600'}`}>
+                  {serverStatus.database || serverStatus.error}
+                </p>
+              </div>
             </div>
           </div>
-          {!serverStatus.ok && (
-            <button
-              onClick={checkServerStatus}
-              className="btn-primary mt-3"
-            >
-              Retry Connection
-            </button>
-          )}
         </div>
       )}
 
@@ -314,20 +276,12 @@ export default function Upload() {
         {uploadStatus === 'success' && (
           <div className="card bg-primary-50 border-primary-200">
             <h3 className="text-lg font-semibold text-primary-900 mb-2">Next Steps</h3>
-            <p className="text-primary-700 mb-4">
-              Your submissions have been uploaded successfully. You can now:
-            </p>
+            <p className="text-primary-700 mb-4">Uploaded successfully! Create judges and assign them to questions.</p>
             <div className="flex space-x-3">
-              <button
-                onClick={() => window.location.href = '/judges'}
-                className="btn-primary"
-              >
+              <button onClick={() => navigate('/judges')} className="btn-primary">
                 Create AI Judges
               </button>
-              <button
-                onClick={() => window.location.href = '/queue'}
-                className="btn-secondary"
-              >
+              <button onClick={() => navigate('/queue')} className="btn-secondary">
                 Assign Judges
               </button>
             </div>

@@ -13,7 +13,7 @@ def clear_all_evaluations():
         count = Evaluation.query.count()
         Evaluation.query.delete()
         db.session.commit()
-        return {"status": "ok", "deleted": count}
+        return {"deleted": count}
     except Exception as e:
         db.session.rollback()
         return {"error": str(e)}, 500
@@ -25,63 +25,45 @@ def run():
         data = request.get_json(force=True)
         queue_id = data.get("queueId")
 
-        # Fetch submissions for queue or all if no queue specified
-        query = Submission.query.filter_by(
-            queue_id=queue_id) if queue_id else Submission.query
+        query = Submission.query.filter_by(queue_id=queue_id) if queue_id else Submission.query
         submissions = query.all()
 
         if not submissions:
-            error_msg = f"No submissions found for queue '{queue_id}'" if queue_id else "No submissions found"
-            return {"error": error_msg}, 404
+            return {"error": "No submissions found"}, 404
 
-        stats = {"planned": 0, "completed": 0, "failed": 0}
-        error_details = []
+        stats = {"planned": 0, "completed": 0, "failed": 0, "errors": []}
 
         for submission in submissions:
-            # Build lookup maps for efficient access
             questions = {q.id: q for q in submission.questions}
             answers = {a.question_id: a for a in submission.answers}
-            assignments = Assignment.query.filter_by(
-                submission_id=submission.id).all()
+            assignments = Assignment.query.filter_by(submission_id=submission.id).all()
 
             for assignment in assignments:
                 stats["planned"] += 1
-
-                # Validate assignment has all required components
                 question = questions.get(assignment.question_id)
                 answer = answers.get(assignment.question_id)
                 judge = db.session.get(Judge, assignment.judge_id)
 
-                if not question:
-                    error_details.append(
-                        f"Question {assignment.question_id} not found")
+                # Validate required data
+                if not question or not answer:
                     stats["failed"] += 1
                     continue
-
-                if not answer:
-                    error_details.append(
-                        f"Answer for {assignment.question_id} not found")
-                    stats["failed"] += 1
-                    continue
-
                 if not judge or not judge.active:
-                    error_msg = f"Judge {assignment.judge_id} not found" if not judge else f"Judge {judge.name} is inactive"
-                    error_details.append(error_msg)
                     stats["failed"] += 1
                     continue
 
-                # Build answer text and run evaluation
-                answer_text = f"{answer.choice or ''}. Reason: {answer.reasoning}" if answer.reasoning else answer.choice or ""
-                result = evaluate(question.question_text or "",
-                                  answer_text, judge.prompt or "", judge.model_name)
-
+                # Build answer text
+                answer_text = f"{answer.choice}. Reason: {answer.reasoning}" if answer.reasoning else answer.choice or ""
+                
+                # Evaluate
+                result = evaluate(question.question_text or "", answer_text, judge.prompt or "", judge.model_name)
+                
                 if not result.get("ok", True):
-                    error_details.append(
-                        f"Evaluation failed: {result.get('reasoning', 'Unknown error')}")
                     stats["failed"] += 1
+                    if len(stats["errors"]) < 10:
+                        stats["errors"].append(result.get("reasoning", "Unknown error"))
                     continue
 
-                # Store evaluation result
                 try:
                     evaluation = Evaluation(
                         submission_id=submission.id,
@@ -95,16 +77,13 @@ def run():
                     stats["completed"] += 1
                 except Exception as e:
                     db.session.rollback()
-                    error_details.append(f"Database error: {str(e)}")
                     stats["failed"] += 1
 
-        # Include limited error details
-        if error_details:
-            stats["errors"] = error_details[:10]  # Limit to first 10 errors
-
+        if not stats["errors"]:
+            del stats["errors"]
         return stats
     except Exception as e:
-        return {"error": f"Evaluation failed: {str(e)}"}, 500
+        return {"error": str(e)}, 500
 
 
 @bp.get("")

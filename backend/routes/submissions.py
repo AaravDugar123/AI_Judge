@@ -14,18 +14,17 @@ def import_submissions():
 
         count = 0
         for item in payload:
-            # Upsert: replace if exists
             existing = db.session.get(Submission, item["id"])
             if existing:
                 db.session.delete(existing)
-                db.session.flush()  # Ensure delete completes before insert
+                db.session.flush()
 
             sub = Submission.from_ingest(item)
             db.session.add(sub)
             count += 1
 
         db.session.commit()
-        return {"status": "ok", "imported": count}
+        return {"imported": count}
     except Exception as e:
         db.session.rollback()
         return {"error": str(e)}, 500
@@ -46,11 +45,10 @@ def clear_all_submissions():
     """Delete all submissions (cascades to questions and answers)"""
     try:
         count = Submission.query.count()
-        # Delete each submission individually to trigger cascade
         for submission in Submission.query.all():
             db.session.delete(submission)
         db.session.commit()
-        return {"status": "ok", "deleted": count}
+        return {"deleted": count}
     except Exception as e:
         db.session.rollback()
         return {"error": str(e)}, 500

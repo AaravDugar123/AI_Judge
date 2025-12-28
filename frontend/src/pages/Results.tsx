@@ -44,29 +44,24 @@ export default function Results() {
   };
 
   const handleClearAll = async () => {
-    if (!window.confirm('⚠️ WARNING: This will delete ALL evaluation results. This action cannot be undone!\n\nAre you sure?')) {
-      return;
-    }
+    if (!window.confirm('⚠️ Delete ALL evaluations?')) return;
     
     setClearing(true);
     try {
       await api.delete('/evaluations/clear');
-      toast.success('All evaluations cleared successfully!');
-      refetch(); // Refresh the data
-    } catch (error: any) {
-      toast.error('Failed to clear evaluations');
+      toast.success('Cleared successfully');
+      refetch();
+    } catch {
+      toast.error('Failed to clear');
     } finally {
       setClearing(false);
     }
   };
 
-  // Prepare chart data
   const verdictData = React.useMemo(() => {
     if (!evaluations?.items) return [];
-    const counts = evaluations.items.reduce((acc, item) => {
-      acc[item.verdict] = (acc[item.verdict] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const counts: Record<string, number> = {};
+    evaluations.items.forEach(i => counts[i.verdict] = (counts[i.verdict] || 0) + 1);
 
     return Object.entries(counts).map(([verdict, count]) => ({
       verdict: verdict.charAt(0).toUpperCase() + verdict.slice(1),
@@ -97,24 +92,18 @@ export default function Results() {
   const exportResults = () => {
     if (!evaluations?.items) return;
     
-    const csvContent = [
-      ['ID', 'Submission', 'Question', 'Judge', 'Verdict', 'Reasoning', 'Created'],
-      ...evaluations.items.map(item => [
-        item.id,
-        item.submissionId,
-        item.questionId,
-        item.judgeId,
-        item.verdict,
-        `"${item.reasoning.replace(/"/g, '""')}"`,
-        item.createdAt
-      ])
-    ].map(row => row.join(',')).join('\n');
+    const csv = [
+      'ID,Submission,Question,Judge,Verdict,Reasoning,Created',
+      ...evaluations.items.map(i => 
+        `${i.id},${i.submissionId},${i.questionId},${i.judgeId},${i.verdict},"${i.reasoning.replace(/"/g, '""')}",${i.createdAt}`
+      )
+    ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `evaluation-results-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `results-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };

@@ -30,9 +30,8 @@ def create_judge():
     data = request.get_json(force=True)
     model_name = data.get("modelName")
 
-    # Validate model name
     if model_name and model_name not in VALID_OPENAI_MODELS:
-        return {"error": f"Invalid model '{model_name}'. Valid models: {', '.join(sorted(VALID_OPENAI_MODELS))}"}, 400
+        return {"error": f"Invalid model: {model_name}"}, 400
 
     judge = Judge(
         name=data["name"],
@@ -54,18 +53,16 @@ def update_judge(judge_id: int):
     data = request.get_json(force=True)
     model_name = data.get("modelName")
 
-    # Validate model name if being updated
     if model_name and model_name not in VALID_OPENAI_MODELS:
-        return {"error": f"Invalid model '{model_name}'. Valid models: {', '.join(sorted(VALID_OPENAI_MODELS))}"}, 400
+        return {"error": f"Invalid model: {model_name}"}, 400
 
-    # Update fields
     judge.name = data.get("name", judge.name)
     judge.prompt = data.get("prompt", judge.prompt)
     judge.model_name = model_name or judge.model_name
     judge.active = data.get("active", judge.active)
 
     db.session.commit()
-    return {"ok": True}
+    return {"updated": True}
 
 
 @bp.delete("/<int:judge_id>")
@@ -76,4 +73,4 @@ def delete_judge(judge_id: int):
 
     db.session.delete(judge)
     db.session.commit()
-    return {"ok": True}
+    return {"deleted": True}

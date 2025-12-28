@@ -1,4 +1,4 @@
-# 🚀 Quick Start Guide
+# Start Guide
 
 ## First Time Setup
 
@@ -37,9 +37,9 @@ npm run dev
 
 This automatically:
 
-- ✅ Starts the backend server on port 5002
-- ✅ Starts the frontend on port 5173
-- ✅ Opens http://localhost:5173 in your browser
+- Starts the backend server on port 5002
+- Starts the frontend on port 5173
+- Opens http://localhost:5173 in your browser
 
 ### Option 2: Separate Terminals
 
@@ -73,9 +73,3 @@ npm run frontend
 Press `Ctrl+C` in the terminal to stop both servers.
 
 ---
-
-## Need Help?
-
-- Check `README.md` for full documentation
-- Backend logs are in `backend/backend.log`
-- Make sure your OpenAI API key is set in `backend/.env`
