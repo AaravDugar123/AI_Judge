@@ -1,6 +1,6 @@
 # AI Judge - Automated Submission Evaluation Platform
 
-A sophisticated web application that uses configurable AI to evaluate and grade submissions automatically. Built with React/TypeScript frontend and Flask/SQLAlchemy backend. This was built for UC Berkeley GSI's who wanted to automate their grading feedback for open-ended homework assignments/projects while maintaining a personal touch
+A sophisticated web application that uses configurable AI to evaluate and grade submissions automatically. Built with React/TypeScript frontend and Flask/SQLAlchemy backend. This was built for Ruger's GSI's who wanted to automate their grading feedback for open-ended homework assignments/projects while maintaining a personal touch
 
 ## Features
 
